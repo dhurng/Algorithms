@@ -1,6 +1,8 @@
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import javax.swing.tree.TreeNode;
+
 /**
  * 
  * @author davidhurng
@@ -8,148 +10,123 @@ import java.util.LinkedList;
  */
 public class Trees {
 	
-	private void preorderTrav(Node root) {
-		
-//		//print itself first
-//		System.out.print(root);
-//		//take root check if it has a left child
-//		preorderTrav(root.leftChild);
-//		preorderTrav(root.rightChild);
-//		//if so do it again
-//		//else print that go up and get right if exist
-		
-		//without recursion
-		//use a stack		
-		Stack stack = new Stack();
-		
-		
-		//define own stack
-		
-		//push root
-		stack.push(root);
-		//while not empty 
-		while(stack.size != 0) {
-			//pop node
-			Node curr = stack.pop();
-			System.out.println(curr.data);
-			if(curr.rightChild != null) {
-				stack.push(curr.rightChild);
-			}
-			
-			if(curr.leftChild != null) {
-				stack.push(curr.leftChild);
-			}
-			//print val
-			//if right then push
-			//if left then push
+	class TreeNode {
+		int val;
+		TreeNode left;
+		TreeNode right;
+		TreeNode(int x) {
+			val = x;
 		}
-		
 	}
 	
+	public boolean validateBST(TreeNode tree) {
+//		int low = Integer.MIN_VALUE;
+//		int high = Integer.MAX_VALUE;
+		return validateBSThelper(tree, null, null);
+	}
 	
-	
-	private void inorderTrav(Node root) {
-		if(root == null) {
-			return;
+	public boolean validateBSThelper(TreeNode tree, Integer low, Integer high) {
+		if(tree == null) {
+			return true;
+		}
+		
+		if((low == null || low < tree.val) && (high == null || tree.val < high) && (validateBSThelper(tree.left, low, tree.val)) && (validateBSThelper(tree.right, tree.val, high))) {
+			return true;
 		}
 
-		inorderTrav(root.leftChild);
-		System.out.println(root);
-		inorderTrav(root.rightChild);
+		return false;
 	}
 	
-	private void postorderTrav(Node root) {
-		if(root == null) {
-			return;
-		}
+	public int maxDepth(TreeNode tree) {
+		int leftSub = 0;
+		int rightSub = 0;
 		
-		postorderTrav(root.leftChild);
-		postorderTrav(root.rightChild);
-		System.out.println(root);
-	}
-	
-	
-	private Node lowCommonAnc(Node root, Node a, Node b) {
-		Node curr = root;
-		
-		while(curr != null) {
-			if(curr.data < a.data && curr.data < b.data) {
-				curr = curr.leftChild;
-			}
-			else if(curr.data > a.data && curr.data > b.data) {
-				curr = curr.rightChild;
-			}
-			else { 
-				return curr;
-			}
-		}
-		//only if empty tree
-		return null;
-		//check if node is smaller
-		//check if node is bigger
-		//if between return
-	}
-	
-	//static way you can use oop instead
-	public static Node balance(Node root) {
-		Node newRoot = root.leftChild;
-		root.leftChild = newRoot.rightChild;
-		root.rightChild = root;
-		return newRoot;
-	}
-	
-	public static Node heapify(Node root) {
-		//count nodes
-		int size = traverse(root, 0, null);
-		//load nodes into array
-		Node[] nodeArray = new Node[size];
-		
-		Arrays.sort(nodeArray, new Comparator<Node>() {
-			@Override public int compare(Node m, Node n) {
-				return (m.data < n.data)
-			}
-		});
-		//2i + 1 2i + 2
-		return null;
-	}
-	
-	public static int traverse(Node node, int count, Node[] array) {
-		if(node == null) {
-			return count;
-		}
-		if(array != null) {
-			array[count] = node;
-		}
-		count++;
-		count = traverse(node.leftChild, count, array);
-		count = traverse(node.rightChild, count, array);
-		return count;
-	}
-	
-	
-	private int height(Node i) {
-		if(i == null) {
+		if(tree == null) {
 			return 0;
 		}
-		return 1 + Math.max(height(i.leftChild), height(i.rightChild));
-	}
 
-	private static class Node {
-		int data;
-		Node[] children;
-		Node leftChild;
-		Node rightChild;
+		leftSub = maxDepth(tree.left);
+		rightSub = maxDepth(tree.right);
 		
-		public Node(Node[] children) {
-			this.children = children;
+
+		if(leftSub > rightSub) {
+			return leftSub + 1;
+		}
+		else {
+			return rightSub + 1;
+		}
+	}
+	
+	public int minDepth(TreeNode tree) {
+		int leftSub = 0, rightSub = 0;
+		if(tree == null) {
+			return 0;
 		}
 		
-		public int numChildren() {
-			return children.length;
+		if(tree.left == null) {
+			return minDepth(tree.right) + 1;
+		}
+		if(tree.right == null) {
+			return minDepth(tree.left) + 1;
 		}
 		
-		public Node getChild(int i) {
-			return children[i];
+		return Math.min(leftSub, rightSub) + 1;	
+	}
+	
+	public boolean isBalanced(TreeNode tree) {
+		if(isBalancedHelper(tree) == -1) {
+			return false;
 		}
+		return true;
+	}
+	
+	
+	public int isBalancedHelper(TreeNode tree) {
+		if(tree == null) {
+			return 0;
+		}
+		
+		int leftSubH = 0;
+		int rightSubH = 0;
+		
+		leftSubH = isBalancedHelper(tree.left);
+		if(leftSubH == -1) {
+			return -1;
+		}
+		
+		rightSubH = isBalancedHelper(tree.right);
+		if(rightSubH == -1) {
+			return -1;
+		}
+		
+		
+		if(Math.abs(leftSubH - rightSubH) > 1) {
+			return -1;
+		}
+		
+		return Math.max(leftSubH, rightSubH) + 1;
+	}
+	
+	
+	public TreeNode convert(int[] nums) {
+		int beg = 0;
+		int end = nums.length - 1;
+
+		return convertHelper(nums, beg, end);
+
+	}
+	
+	public TreeNode convertHelper(int[] nums, int beg, int end){
+		int mid = (beg + end)/2;
+		TreeNode curr = new TreeNode(nums[mid]);
+		
+		if(beg > end) {
+			return null;
+		}
+		
+		curr.left = convertHelper(nums, beg, mid - 1);
+		curr.right = convertHelper(nums, mid + 1, end);
+		
+		return curr;
 	}
 }
